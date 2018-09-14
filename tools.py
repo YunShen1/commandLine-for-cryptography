@@ -6,7 +6,7 @@ from math import *
 from numpy import *
 import numpy as np
 
-# 全局变量
+# 全局
 alpha = "abcdefghijklmnopqrstuvwxyz" #字母表
 
 #################################################################################################
