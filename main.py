@@ -1,9 +1,9 @@
-﻿import os
+﻿import lib
+from lib import *
 
 ########################################################################################
 
 index = []
-alpha = "abcdefghijklmnopqrstuvwxyz"
 
 ########################################################################################
 
@@ -11,10 +11,10 @@ def clear():
 	os.system('cls')
 	os.system('clear')
 
-def select():
+def select(path):
 	option = c2n(input("请输入选项: "))
-	while option < 0 or option >= len(menu):
-		option = c2n(input("输入错误，请重新选择"))
+	while option < 0 or option >= len(path):
+		option = c2n(input("输入错误，请重新选择: "))
 	return option
 
 def enter(path, option):
@@ -23,7 +23,14 @@ def enter(path, option):
 	if type(value) == type({}):
 		index.append(option)
 	else:
-		value()
+		clear()
+		try:
+			value()
+		except Exception as e:
+			print("发生了异常:")
+			print(e) 
+		if value.__name__ != "yy":
+			pause = input("请输入回车键继续")
 
 def updatePath(index):
 	path = menu
@@ -44,11 +51,11 @@ def disp(path):
 	else:
 		print(path)
 
-def xx():
-	print("执行方法")
-
 def yy():
 	index.pop()
+
+def zz():
+	exit()
 
 def c2n(c):
 	return alpha.find(c.lower())
@@ -59,49 +66,50 @@ def n2c(n):
 ########################################################################################
 
 menu = {
-	"替换":{
-		"加密变换":xx, 
-		"解密变换":xx, 
-		"字典破解":xx,
+	"替换密码":{
+		"加密变换": repEncoder, 
+		"解密变换": repDecoder, 
+		"字典破解": repCracker,
 		"..":yy
 	},
-	"移位":{
-		"周期计算":xx,
-		"机制分析":xx,
+	"移位寄存器":{
+		"周期计算": LFSRAnalyzer,
+		"机制分析": LFSRCracker,
 		"..":yy
 	},
-	"rabin":{
-		"加密工具":xx,
-		"解密工具":xx,
+	"Rabin加密":{
+		"Rabin加密工具": rabinEncoder,
+		"Rabin解密工具": rabinDecoder,
 		"..":yy
 	},
-	"RSA":{
-		"加密工具":xx,
-		"解密工具":xx,
+	"RSA加密":{
+		"RSA加密工具": RSAEncoder,
+		"RSA解密工具": RSADecoder,
 		"..":yy
 	},
 	"素数分解": {
-		"素数分解":xx,
+		"素数分解": dividePrime,
 		"..":yy
 	},
 	"数字签名":{
-		"消息签名":xx,
-		"签名验证":xx,
+		"消息签名": signMsg,
+		"签名验证": verifyMsg,
 		"..":yy
 	},
 	"密钥分配":{
-		"中国剩余定理分配密钥":xx,
-		"中国剩余定理还原密钥":xx,
-		"Shamir还原密钥":xx,
+		"中国剩余定理分配密钥": remainDivider,
+		"中国剩余定理还原密钥": remainRecoverer,
+		"Shamir还原密钥": ShamirRecoverer,
 		"..":yy
-	}
+	},
+	"退出": zz
 }
 
 def init():
 	path = menu
 	while True:
 		disp(path)
-		option = select()
+		option = select(path)
 		enter(path, option)
 		path = updatePath(index)
 

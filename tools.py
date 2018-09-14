@@ -2,6 +2,7 @@
 import re
 import os
 import math
+from math import *
 from numpy import *
 import numpy as np
 
@@ -59,7 +60,7 @@ def repCracker(c, m):
 #################################################################################################
 # 移位密码工具
 # 周期分析器
-# init: 初始状态, principle: 转移法则(数组)
+# init: 初始状态, principle: 转移法则
 def LFSRAnalyzer(init, principle):
 	staList = [init]
 	curSta = init
@@ -76,7 +77,7 @@ def LFSRAnalyzer(init, principle):
 			T = len(staList) - staList.index(curSta)
 			break
 
-	print(T)
+	return T
 
 # 破解工具
 def LFSRCracker(stream, rank):
@@ -88,7 +89,7 @@ def LFSRCracker(stream, rank):
 		r = mat(toInt(r))
 		a = vstack((a, r))
 
-	tail = list(stream[len(stream)-3:])
+	tail = list(stream[len(stream)-rank:])
 	tail = mat(toInt(tail)).T
 	result = (a.I * tail % 2).tolist()
 	result = [int(x) for j in result for x in j]
@@ -99,6 +100,7 @@ def LFSRCracker(stream, rank):
 # Rabin密码
 # 加密工具
 def rabinEncoder(p, q, m):
+
 	n = p * q
 	c = m * m % n
 	return int(c)
@@ -110,8 +112,8 @@ def rabinDecoder(p, q, c):
 
 	y1 = rev(q, p)
 	y2 = rev(p, q)
-	z1 = math.pow(c, (p+1)/4) % n
-	z2 = math.pow(c, (q+1)/4) % n
+	z1 = pow(c, (p+1)/4) % n
+	z2 = pow(c, (q+1)/4) % n
 	a1 = y1 * z1 * q
 	a2 = y2 * z2 * p
 
@@ -121,8 +123,8 @@ def rabinDecoder(p, q, c):
 	result.append((-a1 + a2) % n)
 	result.append((-a1 - a2) % n)
 
-	print("涉及指数运算: %d的%d次方\n%d" % (c, (p+1)/4), math.pow(c, (p+1)/4))
-	print("涉及指数运算: %d的%d次方\n%d" % (c, (q+1)/4), math.pow(c, (q+1)/4))
+	print("涉及指数运算: %d的%d次方\n%d" % (c, (p+1)/4, pow(c, (p+1)/4)))
+	print("涉及指数运算: %d的%d次方\n%d" % (c, (q+1)/4, pow(c, (q+1)/4)))
 	return toInt(result)
 
 #################################################################################################
@@ -131,8 +133,8 @@ def rabinDecoder(p, q, c):
 # 注意： 涉及大指数运算，可能误差
 def RSAEncoder(p, q, e, m):
 	n = p * q
-	c = math.pow(m, e) % n
-	print("涉及指数运算: %d的%d次方\n%d" % (m, e, math.pow(m, e)))
+	c = pow(m, e) % n
+	print("涉及指数运算: %d的%d次方\n%d" % (m, e, pow(m, e)))
 	return int(c)
 
 # 解密工具
@@ -144,9 +146,9 @@ def RSADecoder(n, e, c):
 
 	el = (p - 1) * (q - 1)
 	d = rev(e, el)
-	m = math.pow(c, d) % n
+	m = pow(c, d) % n
 
-	print("涉及指数运算: %d的%d次方\n%d" % (c, d, math.pow(c, d)))
+	print("涉及指数运算: %d的%d次方\n%d" % (c, d, pow(c, d)))
 	return int(m)
 
 #################################################################################################
@@ -173,11 +175,11 @@ def dividePrime(n):
 # 假设H(m) = m
 # g: α; x: H(m); k: 随机数;
 def signMsg(p, q, g, x, k, m):
-	r = math.pow(g, k) % p % q
+	r = pow(g, k) % p % q
 	revK = rev(k, q)
 	s = revK * (m + x * r) % q
 
-	print("涉及指数运算: %d的%d次方\n%d" % (g, k, math.pow(g, k)))
+	print("涉及指数运算: %d的%d次方\n%d" % (g, k, pow(g, k)))
 	result = [r, s]
 	return toInt(result)
 
@@ -188,10 +190,10 @@ def verifyMsg(p, q, g, y, m, r, s):
 	w = rev(s, q)
 	u1 = (m * w) % q
 	u2 = (r * w) % q
-	R = (math.pow(g, u1) * math.pow(y, u2)) % p % q
+	R = (pow(g, u1) * pow(y, u2)) % p % q
 
-	print("涉及指数运算: %d的%d次方\n%d" % (g, u1, math.pow(g, u1)))
-	print("涉及指数运算: %d的%d次方\n%d" % (y, u2, math.pow(y, u2)))
+	print("涉及指数运算: %d的%d次方\n%d" % (g, u1, pow(g, u1)))
+	print("涉及指数运算: %d的%d次方\n%d" % (y, u2, pow(y, u2)))
 	return R == r
 
 #################################################################################################
@@ -240,25 +242,7 @@ def ShamirRecoverer(k, q, pts):
 
 		rs += y[i] * a / b
 
-	return rs
-
-#################################################################################################
-def init():	
-	clear()
-	print("Input a letter for continue..")
-	print("a. 替换密码工具")
-	print("b. 移位密码工具")
-	print("c. rabin加密解密工具")
-	print("d. RSA加密解密工具")
-	print("e. 大素数分解")
-	print("f. 数字签名与验证")
-	print("g. 密钥分割与还原")
-
-	option = input("请输入选项: ")
-	enter(option)	# 清屏之后显示内容
-
-
-
+	return int(rs)
 
 #################################################################################################
 # 工具函数
@@ -294,23 +278,9 @@ def prod(list):
 		p *= i
 	return p
 
-# 展示子菜单
-def enter(option):
-	clear()
-	print("Input a letter for continue..")
-	print("a. 替换密码工具")
-	print("b. 返回")
-	option = input("请输入选项: ")
-	init()
-
-# 清屏
-def clear():
-	os.system('cls')
-	os.system('clear')
-
 #################################################################################################
-def main():
-	# code = repEncoder("i am a student","iamsstudenhcroxygwpbfjklqvz")
+# def main():
+	# code = repEncoder("i am a student","iamstudenhcroxygwpbfjklqvz")
 	# print(repEncoder("it was covered with yellow.", "iamstudenhcroxygwpbfjklqvz"))
 	# print(repDecoder("NF LIB MYKTPTS LNFE VTRRYL.", "iamstudenhcroxygwpbfjklqvz"))
 	# dict = repCracker("ER", "uh")
@@ -328,6 +298,5 @@ def main():
 	# print(c)
 	# print(remainRecoverer(c))
 	# print(ShamirRecoverer(3, 23, [(1, 5), (2, 8), (3, 15)]))
-	init()
-
-main()
+	# 
+# main()
