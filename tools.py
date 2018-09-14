@@ -112,8 +112,8 @@ def rabinDecoder(p, q, c):
 
 	y1 = rev(q, p)
 	y2 = rev(p, q)
-	z1 = pow(c, (p+1)/4) % n
-	z2 = pow(c, (q+1)/4) % n
+	z1 = mode(c, (p + 1) / 4, n)
+	z2 = mode(c, (q + 1) / 4, n)
 	a1 = y1 * z1 * q
 	a2 = y2 * z2 * p
 
@@ -123,8 +123,6 @@ def rabinDecoder(p, q, c):
 	result.append((-a1 + a2) % n)
 	result.append((-a1 - a2) % n)
 
-	print("涉及指数运算: %d的%d次方\n%d" % (c, (p+1)/4, pow(c, (p+1)/4)))
-	print("涉及指数运算: %d的%d次方\n%d" % (c, (q+1)/4, pow(c, (q+1)/4)))
 	return toInt(result)
 
 #################################################################################################
@@ -133,8 +131,7 @@ def rabinDecoder(p, q, c):
 # 注意： 涉及大指数运算，可能误差
 def RSAEncoder(p, q, e, m):
 	n = p * q
-	c = pow(m, e) % n
-	print("涉及指数运算: %d的%d次方\n%d" % (m, e, pow(m, e)))
+	c = mode(m, e, n)
 	return int(c)
 
 # 解密工具
@@ -146,9 +143,8 @@ def RSADecoder(n, e, c):
 
 	el = (p - 1) * (q - 1)
 	d = rev(e, el)
-	m = pow(c, d) % n
+	m = mode(c, d, n)
 
-	print("涉及指数运算: %d的%d次方\n%d" % (c, d, pow(c, d)))
 	return int(m)
 
 #################################################################################################
@@ -175,11 +171,10 @@ def dividePrime(n):
 # 假设H(m) = m
 # g: α; x: H(m); k: 随机数;
 def signMsg(p, q, g, x, k, m):
-	r = pow(g, k) % p % q
+	r = mode(g, k, p) % q
 	revK = rev(k, q)
 	s = revK * (m + x * r) % q
 
-	print("涉及指数运算: %d的%d次方\n%d" % (g, k, pow(g, k)))
 	result = [r, s]
 	return toInt(result)
 
@@ -190,10 +185,8 @@ def verifyMsg(p, q, g, y, m, r, s):
 	w = rev(s, q)
 	u1 = (m * w) % q
 	u2 = (r * w) % q
-	R = (pow(g, u1) * pow(y, u2)) % p % q
+	R = (mode(g, u1, p) * mode(y, u2, p) % p) % q
 
-	print("涉及指数运算: %d的%d次方\n%d" % (g, u1, pow(g, u1)))
-	print("涉及指数运算: %d的%d次方\n%d" % (y, u2, pow(y, u2)))
 	return R == r
 
 #################################################################################################
@@ -278,6 +271,16 @@ def prod(list):
 		p *= i
 	return p
 
+# 快速幂取模
+def mode(a, b, c):
+	a, b, c = int(a), int(b), int(c)
+	sum = 1
+	a = a % c
+ 
+	for i in range(b):
+		sum = sum * a % c
+ 	
+	return sum
 #################################################################################################
 # def main():
 	# code = repEncoder("i am a student","iamstudenhcroxygwpbfjklqvz")
